@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kubatiman — Cinematic / Ambient / Electro</title>
+<meta name="description" content="Kubatiman writes cinematic ambient-electro music built from human emotion — dark, textured, widescreen." />
+<style>
+  :root {
+    --black: #050506;
+    --black-soft: #0b0b0d;
+    --black-elevated: #131316;
+    --line: rgba(255, 255, 255, 0.09);
+    --text: #eeeef0;
+    --text-dim: #9a9aa2;
+    --violet: #8b6bff;
+    --violet-glow: #a98bff;
+    --cyan: #37e0d8;
+    --cyan-glow: #6bf0e8;
+    --ember: #ff5d3b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 32px; }
+
+  ::selection { background: var(--violet); color: #050506; }
+
+  /* ---------- NAV ---------- */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 26px 0;
+    transition: background 0.4s ease, border-color 0.4s ease, padding 0.4s ease;
+    border-bottom: 1px solid transparent;
+  }
+  header.scrolled {
+    background: rgba(5, 5, 6, 0.82);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 0;
+  }
+  nav.wrap { display: flex; align-items: center; justify-content: space-between; }
+
+  .logo {
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .logo b { color: var(--violet-glow); font-weight: 700; }
+
+  .nav-links { display: flex; gap: 34px; font-size: 0.86rem; letter-spacing: 0.03em; color: var(--text-dim); }
+  .nav-links a { transition: color 0.25s ease; }
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    padding: 9px 20px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  }
+  .nav-cta:hover { border-color: var(--cyan); color: var(--cyan-glow); background: rgba(55, 224, 216, 0.06); }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #fog-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.9;
+  }
+
+  .hero-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(5,5,6,0.55) 78%, var(--black) 100%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 900px;
+    padding: 0 24px;
+  }
+
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0;
+    animation: rise 1s ease forwards 0.1s;
+  }
+  .hero-kicker::before, .hero-kicker::after {
+    content: "";
+    width: 28px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan));
+  }
+  .hero-kicker::after { background: linear-gradient(90deg, var(--violet), transparent); }
+
+  h1.hero-title {
+    font-size: clamp(3rem, 9vw, 7.2rem);
+    line-height: 0.96;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 28px 0 26px;
+    text-transform: uppercase;
+  }
+  h1.hero-title .line { overflow: hidden; }
+  h1.hero-title .line span {
+    display: block;
+    transform: translateY(115%);
+    animation: rise-line 1.1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  }
+  h1.hero-title .line:nth-child(1) span { animation-delay: 0.2s; }
+  h1.hero-title .line:nth-child(2) span { animation-delay: 0.38s; }
+
+  .gradient-text {
+    background: linear-gradient(100deg, var(--violet-glow), var(--cyan-glow) 55%, var(--violet-glow) 100%);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: sheen 6s linear infinite;
+  }
+  @keyframes sheen { to { background-position: -220% center; } }
+  @keyframes rise-line { to { transform: translateY(0); } }
+  @keyframes rise { to { opacity: 1; } }
+
+  .hero-sub {
+    font-size: clamp(1rem, 1.6vw, 1.18rem);
+    color: var(--text-dim);
+    max-width: 560px;
+    margin: 0 auto 40px;
+    line-height: 1.65;
+    opacity: 0;
+    animation: rise 1s ease forwards 0.7s;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: rise 1s ease forwards 0.9s;
+  }
+
+  .btn {
+    padding: 15px 30px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 0.84rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(120deg, var(--violet), var(--cyan));
+    color: #050506;
+    box-shadow: 0 10px 34px rgba(139, 107, 255, 0.28);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(55, 224, 216, 0.36); }
+  .btn-ghost {
+    border-color: var(--line);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--violet-glow); color: var(--violet-glow); transform: translateY(-2px); }
+
+  /* hero waveform */
+  .hero-wave {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 90px;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    padding-bottom: 0;
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+  .hero-wave i {
+    width: 3px;
+    background: linear-gradient(to top, var(--violet), var(--cyan));
+    opacity: 0.55;
+    border-radius: 2px 2px 0 0;
+    transition: height 0.4s ease;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 112px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: rise 1s ease forwards 1.3s;
+  }
+  .scroll-cue .stick { width: 1px; height: 30px; background: linear-gradient(var(--cyan), transparent); position: relative; overflow: hidden; }
+  .scroll-cue .stick::after {
+    content: "";
+    position: absolute; top: -100%; left: 0; right: 0; height: 100%;
+    background: var(--violet-glow);
+    animation: scrollline 2s ease-in-out infinite;
+  }
+  @keyframes scrollline { 0% { top: -100%; } 60% { top: 100%; } 100% { top: 100%; } }
+
+  /* ---------- SECTION GENERIC ---------- */
+  section { position: relative; padding: 130px 0; }
+  .section-head { max-width: 600px; margin-bottom: 60px; }
+  .kicker {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cyan-glow);
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .section-head h2 {
+    font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.14;
+    text-transform: uppercase;
+  }
+  .section-head p { color: var(--text-dim); margin-top: 18px; font-size: 1rem; line-height: 1.7; }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.19,1,0.22,1), transform 0.8s cubic-bezier(0.19,1,0.22,1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- FEATURED RELEASE ---------- */
+  .featured {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .cover-art {
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(circle at 30% 25%, rgba(139,107,255,0.55), transparent 55%),
+      radial-gradient(circle at 75% 75%, rgba(55,224,216,0.4), transparent 55%),
+      linear-gradient(160deg, #0c0c10, #050506 70%);
+  }
+  .cover-art::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode: overlay;
+  }
+  .cover-art .glyph {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: rgba(255,255,255,0.08);
+  }
+  .cover-art .play {
+    position: absolute; bottom: 22px; left: 22px;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: rgba(5,5,6,0.55);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .cover-art .play:hover { transform: scale(1.08); border-color: var(--cyan-glow); }
+  .cover-art .play svg { width: 18px; height: 18px; fill: var(--text); margin-left: 2px; }
+
+  .featured-info .eyebrow-tag {
+    color: var(--violet-glow);
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .featured-info h3 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 14px; text-transform: uppercase; }
+  .featured-info p { color: var(--text-dim); line-height: 1.7; margin-bottom: 28px; max-width: 480px; }
+
+  .tracklist { border-top: 1px solid var(--line); }
+  .track-row {
+    display: flex; align-items: center; gap: 18px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    transition: color 0.25s ease, padding-left 0.25s ease;
+  }
+  .track-row:hover { color: var(--text); padding-left: 6px; }
+  .track-row .idx { width: 22px; color: var(--cyan-glow); font-weight: 700; font-size: 0.82rem; }
+  .track-row .name { flex: 1; }
+  .track-row .len { font-variant-numeric: tabular-nums; opacity: 0.7; }
+
+  /* ---------- DISCOGRAPHY ---------- */
+  .disco-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .disco-card {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--black-soft);
+    transition: transform 0.35s ease, border-color 0.35s ease;
+  }
+  .disco-card:hover { transform: translateY(-6px); border-color: rgba(139,107,255,0.4); }
+  .disco-art {
+    aspect-ratio: 1 / 1;
+    position: relative;
+  }
+  .disco-art .glyph {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 2.2rem; color: rgba(255,255,255,0.1);
+  }
+  .disco-card .meta { padding: 16px 18px 20px; }
+  .disco-card h4 { font-size: 0.98rem; font-weight: 700; margin-bottom: 4px; }
+  .disco-card .tag { font-size: 0.76rem; color: var(--text-dim); letter-spacing: 0.03em; }
+
+  @media (max-width: 940px) {
+    .disco-grid { grid-template-columns: repeat(2, 1fr); }
+    .featured { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- BIO ---------- */
+  .bio-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .bio-portrait {
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(circle at 60% 20%, rgba(55,224,216,0.35), transparent 50%),
+      radial-gradient(circle at 30% 85%, rgba(139,107,255,0.4), transparent 55%),
+      linear-gradient(200deg, #0c0c10, #050506 75%);
+    position: relative;
+    overflow: hidden;
+  }
+  .bio-portrait::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 6px);
+  }
+  .bio-copy p { color: var(--text-dim); line-height: 1.85; margin-bottom: 20px; font-size: 1rem; }
+  .bio-copy p:first-child { color: var(--text); font-size: 1.12rem; }
+  .bio-stats { display: flex; gap: 40px; margin-top: 36px; flex-wrap: wrap; }
+  .bio-stats div .num { font-size: 1.8rem; font-weight: 800; color: var(--cyan-glow); }
+  .bio-stats div .label { font-size: 0.78rem; color: var(--text-dim); letter-spacing: 0.04em; margin-top: 4px; }
+
+  @media (max-width: 860px) {
+    .bio-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- QUOTE BAND ---------- */
+  .quote-band {
+    background: var(--black-soft);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    padding: 130px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-band::before {
+    content: "";
+    position: absolute; inset: -30%;
+    background: radial-gradient(circle at 25% 30%, rgba(139,107,255,0.14), transparent 55%),
+                radial-gradient(circle at 78% 70%, rgba(55,224,216,0.12), transparent 55%);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(2%, -3%, 0) scale(1.05); }
+    100% { transform: translate3d(-3%, 2%, 0) scale(1); }
+  }
+  .quote-band blockquote {
+    position: relative;
+    z-index: 1;
+    font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+    font-weight: 300;
+    font-style: italic;
+    max-width: 780px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  .quote-band cite {
+    position: relative; z-index: 1;
+    display: block; margin-top: 26px;
+    color: var(--text-dim); font-style: normal; font-size: 0.82rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  /* ---------- VISUALS ---------- */
+  .visuals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .visual-card {
+    aspect-ratio: 16 / 10;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .visual-card .bg {
+    position: absolute; inset: 0;
+    transition: transform 0.6s ease;
+  }
+  .visual-card:hover .bg { transform: scale(1.08); }
+  .visual-card:nth-child(1) .bg { background: radial-gradient(circle at 30% 30%, rgba(139,107,255,0.5), transparent 60%), linear-gradient(200deg, #0d0d12, #050506); }
+  .visual-card:nth-child(2) .bg { background: radial-gradient(circle at 65% 40%, rgba(55,224,216,0.45), transparent 60%), linear-gradient(200deg, #0d0d12, #050506); }
+  .visual-card:nth-child(3) .bg { background: radial-gradient(circle at 45% 70%, rgba(255,93,59,0.32), transparent 60%), linear-gradient(200deg, #0d0d12, #050506); }
+  .visual-card .overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 18px;
+    background: linear-gradient(to top, rgba(5,5,6,0.75), transparent 55%);
+  }
+  .visual-card .overlay h5 { font-size: 0.92rem; font-weight: 700; }
+  .visual-card .overlay span { font-size: 0.72rem; color: var(--text-dim); }
+  .visual-play {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(5,5,6,0.5);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .visual-card:hover .visual-play { border-color: var(--cyan-glow); transform: scale(1.06); }
+  .visual-play svg { width: 14px; height: 14px; fill: var(--text); margin-left: 2px; }
+
+  @media (max-width: 860px) {
+    .visuals-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- PRESS ---------- */
+  .press-wrap { max-width: 760px; margin: 0 auto; text-align: center; position: relative; min-height: 170px; }
+  .press-quote {
+    position: absolute; inset: 0;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    pointer-events: none;
+  }
+  .press-quote.active { opacity: 1; transform: translateY(0); pointer-events: auto; position: relative; }
+  .press-quote p { font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.6; }
+  .press-quote cite { display: block; margin-top: 20px; color: var(--text-dim); font-style: normal; font-size: 0.82rem; letter-spacing: 0.04em; }
+  .dots { display: flex; gap: 8px; justify-content: center; margin-top: 34px; }
+  .dots button { width: 8px; height: 8px; border-radius: 50%; background: var(--line); border: none; cursor: pointer; transition: background 0.3s ease, transform 0.3s ease; }
+  .dots button.active { background: var(--violet-glow); transform: scale(1.3); }
+
+  /* ---------- CTA ---------- */
+  .cta-band {
+    position: relative;
+    margin: 0 32px;
+    border-radius: 6px;
+    overflow: hidden;
+    padding: 90px 40px;
+    text-align: center;
+    background: var(--black-elevated);
+    border: 1px solid var(--line);
+  }
+  .cta-band::before {
+    content: "";
+    position: absolute; inset: -40%;
+    background: radial-gradient(circle at 28% 30%, rgba(139,107,255,0.32), transparent 55%),
+                radial-gradient(circle at 74% 68%, rgba(55,224,216,0.26), transparent 55%);
+    animation: drift 16s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+  .cta-band > * { position: relative; z-index: 1; }
+  .cta-band .kicker { justify-content: center; display: flex; }
+  .cta-band h2 { font-size: clamp(1.9rem, 3.8vw, 2.7rem); font-weight: 800; margin: 16px 0 18px; text-transform: uppercase; }
+  .cta-band p { color: var(--text-dim); margin-bottom: 36px; font-size: 1.02rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+  .platform-links { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+  .platform-links a {
+    padding: 10px 20px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: border-color 0.3s ease, color 0.3s ease;
+  }
+  .platform-links a:hover { border-color: var(--cyan-glow); color: var(--cyan-glow); }
+
+  /* ---------- FOOTER ---------- */
+  footer { padding: 70px 0 40px; border-top: 1px solid var(--line); margin-top: 60px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+  .footer-brand p { color: var(--text-dim); margin-top: 14px; font-size: 0.88rem; max-width: 280px; line-height: 1.7; }
+  .footer-col h5 { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 16px; }
+  .footer-col a { display: block; color: var(--text-dim); font-size: 0.88rem; margin-bottom: 12px; transition: color 0.25s ease; }
+  .footer-col a:hover { color: var(--text); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    color: var(--text-dim); font-size: 0.8rem;
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+  }
+
+  @media (max-width: 760px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .disco-grid { grid-template-columns: 1fr 1fr; }
+    .visuals-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <nav class="wrap">
+    <div class="logo">KUBATI<b>MAN</b></div>
+    <div class="nav-links">
+      <a href="#music">Music</a>
+      <a href="#visuals">Visuals</a>
+      <a href="#about">About</a>
+      <a href="#press">Press</a>
+    </div>
+    <a href="#contact" class="nav-cta">Booking</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <canvas id="fog-canvas"></canvas>
+  <div class="hero-vignette"></div>
+  <div class="hero-content">
+    <span class="hero-kicker">Cinematic · Ambient · Electro</span>
+    <h1 class="hero-title">
+      <span class="line"><span>Music for</span></span>
+      <span class="line"><span class="gradient-text">what remains unsaid.</span></span>
+    </h1>
+    <p class="hero-sub">
+      Kubatiman builds widescreen, emotionally-charged soundscapes at the
+      intersection of cinematic score and dark ambient-electro — music made
+      from the feelings that don't translate into words.
+    </p>
+    <div class="hero-ctas">
+      <a href="#music" class="btn btn-primary">Listen to the latest release</a>
+      <a href="#about" class="btn btn-ghost">The story</a>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll<div class="stick"></div></div>
+  <div class="hero-wave" id="hero-wave"></div>
+</section>
+
+<section id="music">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">Latest Release</span>
+      <h2>Hollow Light</h2>
+      <p>A six-track descent through grief, memory, and the quiet after —
+        strings, modular textures, and half-remembered voices layered into
+        one continuous cinematic arc.</p>
+    </div>
+    <div class="featured">
+      <div class="cover-art reveal">
+        <div class="glyph">HL</div>
+        <div class="play" aria-label="Play preview">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+      <div class="featured-info reveal">
+        <span class="eyebrow-tag">EP · 2026</span>
+        <h3>Hollow Light</h3>
+        <p>Recorded over a winter of isolation, Hollow Light traces the space
+          between losing something and learning to carry it. Sparse piano and
+          granular synthesis sit beneath processed strings and slow-decaying
+          drones — built for headphones, film, and the hours after midnight.</p>
+        <div class="tracklist">
+          <div class="track-row"><span class="idx">01</span><span class="name">Hollow Light</span><span class="len">4:12</span></div>
+          <div class="track-row"><span class="idx">02</span><span class="name">Static Rooms</span><span class="len">5:47</span></div>
+          <div class="track-row"><span class="idx">03</span><span class="name">Everything I Couldn't Say</span><span class="len">6:03</span></div>
+          <div class="track-row"><span class="idx">04</span><span class="name">Ash & Afterglow</span><span class="len">3:58</span></div>
+          <div class="track-row"><span class="idx">05</span><span class="name">Nocturne for No One</span><span class="len">7:15</span></div>
+          <div class="track-row"><span class="idx">06</span><span class="name">Vanishing Point</span><span class="len">5:29</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="discography">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">Discography</span>
+      <h2>A catalogue of quiet devastation.</h2>
+    </div>
+    <div class="disco-grid">
+      <div class="disco-card reveal">
+        <div class="disco-art" style="background: radial-gradient(circle at 30% 25%, rgba(139,107,255,0.5), transparent 55%), linear-gradient(160deg,#0c0c10,#050506 70%);"><div class="glyph">HL</div></div>
+        <div class="meta"><h4>Hollow Light</h4><span class="tag">EP · 2026</span></div>
+      </div>
+      <div class="disco-card reveal">
+        <div class="disco-art" style="background: radial-gradient(circle at 70% 30%, rgba(55,224,216,0.45), transparent 55%), linear-gradient(160deg,#0c0c10,#050506 70%);"><div class="glyph">SB</div></div>
+        <div class="meta"><h4>Slow Burn</h4><span class="tag">Album · 2024</span></div>
+      </div>
+      <div class="disco-card reveal">
+        <div class="disco-art" style="background: radial-gradient(circle at 40% 70%, rgba(255,93,59,0.35), transparent 55%), linear-gradient(160deg,#0c0c10,#050506 70%);"><div class="glyph">EH</div></div>
+        <div class="meta"><h4>Empty Hours</h4><span class="tag">Album · 2022</span></div>
+      </div>
+      <div class="disco-card reveal">
+        <div class="disco-art" style="background: radial-gradient(circle at 60% 60%, rgba(139,107,255,0.4), transparent 55%), linear-gradient(160deg,#0c0c10,#050506 70%);"><div class="glyph">TS</div></div>
+        <div class="meta"><h4>The Silence Between</h4><span class="tag">Debut LP · 2020</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="bio-grid">
+      <div class="bio-portrait reveal"></div>
+      <div class="bio-copy">
+        <span class="kicker reveal">About</span>
+        <p class="reveal">Kubatiman is a composer and producer working at the
+          edge of cinematic score and dark ambient-electro.</p>
+        <p class="reveal">Every record starts the same way — not with a sound,
+          but with a feeling that hasn't found language yet. Grief, distance,
+          the particular quiet of an empty room. From there the studio becomes
+          a translation booth: modular synthesis, processed strings, and
+          field recordings layered until the feeling has a shape you can
+          listen to.</p>
+        <p class="reveal">That approach has carried Kubatiman's music into
+          short films, gallery installations, and late-night playlists in
+          equal measure — music built to score the parts of life nobody
+          scores.</p>
+        <div class="bio-stats reveal">
+          <div><div class="num">4</div><div class="label">Releases</div></div>
+          <div><div class="num">12+</div><div class="label">Sync placements</div></div>
+          <div><div class="num">6</div><div class="label">Years scoring</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="quote-band">
+  <div class="wrap">
+    <blockquote class="reveal">"I'm not trying to make sad music. I'm trying to make honest music — and honesty, most of the time, sounds like this."</blockquote>
+    <cite class="reveal">— Kubatiman</cite>
+  </div>
+</div>
+
+<section id="visuals">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">Visuals</span>
+      <h2>Scores, sessions, and short film work.</h2>
+    </div>
+    <div class="visuals-grid">
+      <div class="visual-card reveal">
+        <div class="bg"></div>
+        <div class="overlay">
+          <div><h5>Hollow Light — Visualizer</h5><span>2026</span></div>
+          <div class="visual-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="visual-card reveal">
+        <div class="bg"></div>
+        <div class="overlay">
+          <div><h5>Studio Session — Static Rooms</h5><span>2026</span></div>
+          <div class="visual-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="visual-card reveal">
+        <div class="bg"></div>
+        <div class="overlay">
+          <div><h5>"Afterglow" — Short Film Score</h5><span>2024</span></div>
+          <div class="visual-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="press">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin: 0 auto 56px; text-align: center;">
+      <span class="kicker">Press</span>
+      <h2>What people are saying.</h2>
+    </div>
+    <div class="press-wrap">
+      <div class="press-quote active">
+        <p>"Kubatiman writes the kind of ambient-electro that feels less produced than excavated — like the emotion was already there, waiting."</p>
+        <cite>Nocturne Journal</cite>
+      </div>
+      <div class="press-quote">
+        <p>"Hollow Light doesn't ask you to feel something. It just quietly makes sure you do."</p>
+        <cite>Drift Magazine</cite>
+      </div>
+      <div class="press-quote">
+        <p>"One of the most emotionally precise cinematic producers working in the dark-ambient space right now."</p>
+        <cite>Static & Silence</cite>
+      </div>
+    </div>
+    <div class="dots" id="press-dots"></div>
+  </div>
+</section>
+
+<section id="cta-section">
+  <div class="cta-band" id="contact">
+    <span class="kicker">Booking &amp; Sync</span>
+    <h2>Scoring something dark and honest?</h2>
+    <p>Available for film, installation, and licensing work. Reach out with
+      the project and I'll get back to you within a few days.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary">Get in touch</a>
+      <a href="#" class="btn btn-ghost">Press kit</a>
+    </div>
+    <div class="platform-links">
+      <a href="#">Spotify</a>
+      <a href="#">Apple Music</a>
+      <a href="#">Bandcamp</a>
+      <a href="#">YouTube</a>
+      <a href="#">Instagram</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">KUBATI<b>MAN</b></div>
+        <p>Cinematic ambient-electro built from human emotion. Music for the
+          parts of life nobody scores.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Explore</h5>
+        <a href="#music">Music</a>
+        <a href="#visuals">Visuals</a>
+        <a href="#about">About</a>
+        <a href="#press">Press</a>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <a href="#">Booking</a>
+        <a href="#">Press Kit</a>
+        <a href="#">Mailing List</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Kubatiman. A fictional artist project for demonstration purposes.</span>
+      <span>Made in the dark.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Header solid-on-scroll
+  const header = document.getElementById('site-header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach((el) => io.observe(el));
+
+  // Press quote rotation
+  const quotes = document.querySelectorAll('.press-quote');
+  const dotsWrap = document.getElementById('press-dots');
+  let activeIndex = 0;
+  quotes.forEach((_, i) => {
+    const dot = document.createElement('button');
+    if (i === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => showQuote(i));
+    dotsWrap.appendChild(dot);
+  });
+  function showQuote(i) {
+    quotes[activeIndex].classList.remove('active');
+    dotsWrap.children[activeIndex].classList.remove('active');
+    activeIndex = i;
+    quotes[activeIndex].classList.add('active');
+    dotsWrap.children[activeIndex].classList.add('active');
+  }
+  setInterval(() => showQuote((activeIndex + 1) % quotes.length), 5200);
+
+  // Hero waveform bars — ambient idle animation
+  const waveWrap = document.getElementById('hero-wave');
+  const barCount = 64;
+  const bars = [];
+  for (let i = 0; i < barCount; i++) {
+    const bar = document.createElement('i');
+    bar.style.height = '4px';
+    waveWrap.appendChild(bar);
+    bars.push({ el: bar, phase: Math.random() * Math.PI * 2, speed: 0.4 + Math.random() * 0.6 });
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function animateWave(t) {
+    const time = t / 1000;
+    bars.forEach((b, i) => {
+      const base = Math.sin(time * b.speed + b.phase) * 0.5 + 0.5;
+      const swell = Math.sin(time * 0.15 + i * 0.2) * 0.5 + 0.5;
+      const h = 6 + base * 34 * (0.4 + swell * 0.6);
+      b.el.style.height = h.toFixed(1) + 'px';
+    });
+    if (!reduceMotion) requestAnimationFrame(animateWave);
+  }
+  requestAnimationFrame(animateWave);
+
+  // Hero canvas: slow drifting fog blobs in violet/cyan
+  const canvas = document.getElementById('fog-canvas');
+  const ctx = canvas.getContext('2d');
+  let width, height, blobs;
+
+  function resize() {
+    width = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    height = canvas.height = canvas.offsetHeight * devicePixelRatio;
+    blobs = [
+      { x: width * 0.25, y: height * 0.35, r: width * 0.28, hue: 'rgba(139,107,255,', vx: 0.06, vy: 0.03, phase: 0 },
+      { x: width * 0.75, y: height * 0.6, r: width * 0.24, hue: 'rgba(55,224,216,', vx: -0.05, vy: 0.04, phase: 2 },
+      { x: width * 0.5, y: height * 0.8, r: width * 0.2, hue: 'rgba(139,107,255,', vx: 0.03, vy: -0.05, phase: 4 },
+    ];
+  }
+
+  function step(t) {
+    ctx.clearRect(0, 0, width, height);
+    const time = t / 1000;
+    for (const b of blobs) {
+      const x = b.x + Math.sin(time * b.vx + b.phase) * width * 0.06;
+      const y = b.y + Math.cos(time * b.vy + b.phase) * height * 0.06;
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+      grad.addColorStop(0, b.hue + '0.16)');
+      grad.addColorStop(1, b.hue + '0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, b.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (!reduceMotion) requestAnimationFrame(step);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(step);
+</script>
+
+</body>
+</html>
